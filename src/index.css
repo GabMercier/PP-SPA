@@ -2,10 +2,137 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide scrollbars during the demo — slides should never scroll */
+/* Hide scrollbars during the demo, slides should never scroll */
 html, body, #root {
   height: 100%;
   margin: 0;
   overflow: hidden;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---- showcase loaders ---- */
+
+@keyframes breathe {
+  0%, 100% { transform: scale(0.85); opacity: 0.55; }
+  50%      { transform: scale(1.15); opacity: 1; }
+}
+.animate-breathe { animation: breathe 2.8s ease-in-out infinite; }
+
+/* Same rhythm as breathe but opacity only, so text can pulse in sync with
+   the dot without scaling. */
+@keyframes breathe-fade {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 1; }
+}
+.animate-breathe-fade { animation: breathe-fade 2.8s ease-in-out infinite; }
+
+@keyframes spin-soft {
+  to { transform: rotate(360deg); }
+}
+.animate-spin-soft { animation: spin-soft 1.4s linear infinite; }
+
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40%           { transform: translateY(-6px); opacity: 1; }
+}
+.animate-dot-bounce { animation: dot-bounce 1.2s ease-in-out infinite; }
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg,
+    rgba(0,0,0,0.06) 0%,
+    rgba(0,0,0,0.14) 50%,
+    rgba(0,0,0,0.06) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+
+@keyframes bar-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+.animate-bar-sweep { animation: bar-sweep 1.6s cubic-bezier(.4,0,.2,1) infinite; }
+
+@keyframes crossfade-a {
+  0%, 45%   { opacity: 1; }
+  55%, 95%  { opacity: 0; }
+  100%      { opacity: 1; }
+}
+@keyframes crossfade-b {
+  0%, 45%   { opacity: 0; }
+  55%, 95%  { opacity: 1; }
+  100%      { opacity: 0; }
+}
+.animate-crossfade-a { animation: crossfade-a 3.6s ease-in-out infinite; }
+.animate-crossfade-b { animation: crossfade-b 3.6s ease-in-out infinite; }
+
+@keyframes hint-nudge {
+  0%, 100% { transform: translateX(0);   opacity: 0.55; }
+  50%      { transform: translateX(4px); opacity: 1; }
+}
+.animate-hint-nudge { animation: hint-nudge 1.8s ease-in-out infinite; }
+
+/* ---- slide / step transition ---- */
+
+@keyframes slide-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-fade-in {
+  animation: slide-fade-in 360ms cubic-bezier(.22,.61,.36,1) both;
+}
+
+@keyframes step-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-step-fade-in {
+  animation: step-fade-in 240ms ease-out both;
+}
+
+/* ---- View Transitions ----
+ * Scoped per-element. The default crossfade is the right answer for almost
+ * everything; only a few elements get bespoke treatment.
+ *
+ * - arch-pp-info: the Power Pages info column (tagline + Legend + Wireframe)
+ *   slides up from below as the title and subheader morph from the centered
+ *   step-0 framing into their step-1 positions. This creates a "scroll up"
+ *   feel for the architecture reveal.
+ * - arch-pp-title / arch-pp-subheader: morph at the same 460ms duration so
+ *   the title settles in concert with the info scrolling in.
+ * - deck-progress: keep the progress bar visually steady — a brief, barely
+ *   perceptible crossfade instead of the full 250ms default. */
+
+@keyframes vt-scroll-in {
+  from { opacity: 0; transform: translateY(48px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+::view-transition-new(arch-pp-info),
+::view-transition-new(slide3-content) {
+  animation: 460ms cubic-bezier(.22, .61, .36, 1) both vt-scroll-in;
+}
+::view-transition-group(arch-pp-title),
+::view-transition-group(arch-pp-subheader),
+::view-transition-group(slide3-stays-card),
+::view-transition-group(slide3-changes-card) {
+  animation-duration: 460ms;
+  animation-timing-function: cubic-bezier(.22, .61, .36, 1);
+}
+
+::view-transition-old(deck-progress),
+::view-transition-new(deck-progress) {
+  animation-duration: 90ms;
+}
+
+/* When VT is supported, suppress the per-slide CSS fade — its frame-0 state
+   (opacity 0 + translateY) would be what the snapshot captures and the new
+   slide would appear invisible until the transition settles. */
+@supports (view-transition-name: a) {
+  .animate-slide-fade-in {
+    animation: none;
+  }
 }

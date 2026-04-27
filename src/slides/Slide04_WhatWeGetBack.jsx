@@ -7,14 +7,13 @@ import {
 
 const translations = {
   en: {
-    eyebrow: "What we get back",
-    lede: "Most of what we lose was a workaround. What we gain is closer to how we already build everything else.",
+    eyebrow: "Improvements and trade-offs",
     gainsHeading: "Concrete wins",
     gains: [
       {
         title: "Server Logic",
         sub: "GA April 2026",
-        body: "Server-side JS endpoints on the Power Pages runtime. Secure API keys, server-side validation, external calls, unbound Dataverse actions, without standing up Azure Functions.",
+        body: "Server-side JS endpoints on the Power Pages runtime. Secure API keys, server-side validation, external calls, Dataverse actions.",
       },
       {
         title: "Stack stays our choice",
@@ -22,7 +21,7 @@ const translations = {
         body: "The platform just hosts the compiled assets. The team picks the framework, bundler and testing tools, and can swap them later. No lock-in to a portal-specific way of working.",
       },
     ],
-    tradeoffsHeading: "Trade-offs we accept",
+    tradeoffsHeading: "Trade-offs",
     tradeoffs: [
       {
         title: "No visual editor",
@@ -39,14 +38,13 @@ const translations = {
     ],
   },
   fr: {
-    eyebrow: "Ce qu'on récupère",
-    lede: "L'essentiel de ce qu'on perd était un contournement. Ce qu'on gagne ressemble à la façon dont on construit déjà tout le reste.",
+    eyebrow: "Améliorations et compromis",
     gainsHeading: "Gains concrets",
     gains: [
       {
         title: "Server Logic",
         sub: "GA avril 2026",
-        body: "Endpoints JS côté serveur sur le runtime Power Pages. Clés d'API sécurisées, validation côté serveur, appels externes, actions Dataverse non liées, sans monter d'Azure Functions.",
+        body: "Endpoints JS côté serveur sur le runtime Power Pages. Clés d'API sécurisées, validation côté serveur, appels externes, actions Dataverse.",
       },
       {
         title: "Le stack reste notre choix",
@@ -54,7 +52,7 @@ const translations = {
         body: "La plateforme héberge les assets compilés. L'équipe choisit le framework, le bundler et les outils de test, et peut en changer plus tard. Pas de verrouillage dans une approche propre au portail.",
       },
     ],
-    tradeoffsHeading: "Compromis assumés",
+    tradeoffsHeading: "Compromis",
     tradeoffs: [
       {
         title: "Pas d'éditeur visuel",
@@ -95,11 +93,6 @@ export default function Slide04_WhatWeGetBack() {
 
       {/* Body */}
       <main className="flex-1 flex flex-col px-16 pt-8 pb-2 gap-10">
-        {/* Lede */}
-        <p className="text-[26px] leading-[1.3] font-light text-neutral-800 max-w-[1400px]">
-          {t.lede}
-        </p>
-
         {/* Gains row */}
         <div className="flex flex-col gap-4">
           <SectionLabel text={t.gainsHeading} />

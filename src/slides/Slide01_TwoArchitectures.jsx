@@ -1,63 +1,268 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import {
+  AlertCircle,
+  LayoutGrid,
+  ClipboardList,
+  Table,
+  KeyRound,
+  Code2,
+  Layers,
+  ArrowLeftRight,
+} from "lucide-react";
+
+const PP_PARENT_ICON = LayoutGrid;
+const PP_MODULE_ICONS = [ClipboardList, Table, KeyRound];
+const SPA_PARENT_ICON = Code2;
+const SPA_MODULE_ICONS = [Layers, ArrowLeftRight, KeyRound];
 
 const translations = {
   en: {
-    eyebrow: "Where they diverge",
+    eyebrow: "",
     headers: { pp: "Power Pages", spa: "Single page app" },
     subheaders: {
       pp: "An office with many purpose-built rooms.",
       spa: "An open-space office, ready for any type of framework.",
     },
+    ppIntro: {
+      tagline:
+        "Power Pages covers content, navigation, forms, lists and identity for a standard portal.",
+      studio: {
+        title: "Low-code studio",
+        components: [
+          "Pages",
+          "Page templates",
+          "Code snippets",
+          "Site parameters",
+          "Weblink sets",
+          "Web files",
+          "Web templates",
+        ],
+      },
+      modules: [
+        {
+          title: "Dataverse forms",
+          desc: [
+            "Bind directly to tables",
+            "Validation and security inherited from the data model",
+          ],
+          limits: ["Layout, field types and validation are platform-driven"],
+        },
+        {
+          title: "Lists and views",
+          desc: [
+            "Paging, sort and filter included",
+            "Render directly from Dataverse views",
+          ],
+          limits: ["Customizations layer on top of what the platform renders"],
+        },
+        {
+          title: "Identity",
+          desc: [
+            "Azure AD, B2C and social providers",
+            "External user invitations, no code required",
+          ],
+          limits: [],
+        },
+      ],
+      page: {
+        header: { label: "Page template" },
+        snippet: { label: "Code snippet" },
+        form: { label: "Dataverse form" },
+        list: { label: "Dataverse list" },
+        footer: { label: "Page template" },
+      },
+    },
+    spaIntro: {
+      tagline:
+        "Same Power Pages backend. The browser becomes ours: layout and data calls are code we write.",
+      studio: {
+        title: "Built in code",
+        components: [
+          "Components",
+          "Routes",
+          "Layouts",
+          "API client",
+          "State stores",
+          "Styles",
+          "Build config",
+        ],
+      },
+      modules: [
+        {
+          title: "UI layout",
+          desc: [
+            "Every page is composed from components we build",
+            "We design the default layout and behaviour",
+          ],
+          limits: [],
+        },
+        {
+          title: "Data operations",
+          desc: [
+            "The Power Pages Web API still serves the data",
+            "We write the fetch, loading and error handling",
+          ],
+          limits: [],
+        },
+        {
+          title: "Identity",
+          desc: [
+            "Same Entra ID / External ID auth as Power Pages",
+            "User session inherited from the PP shell",
+          ],
+          limits: [],
+        },
+      ],
+      page: {
+        header: { label: "Layout" },
+        snippet: { label: "Component" },
+        form: { label: "Form component" },
+        list: { label: "Table component" },
+        footer: { label: "Layout" },
+      },
+    },
     concepts: [
       {
         label: "Where the UI is built",
-        pp: "Server renders HTML from Liquid templates over Dataverse.",
-        spa: "Browser renders components from JavaScript; the server returns data, not pages.",
-      },
-      {
-        label: "How customization fits in",
-        pp: "Layered on top of the platform's output. JS / CSS applied after the page has rendered.",
-        spa: "Authored directly. Your code is the render. There is no platform DOM to override.",
+        pp: "The server builds the finished page and sends it to the browser.",
+        spa: "The browser builds the page from JavaScript. The server only sends data.",
       },
       {
         label: "Navigation",
-        pp: "Each navigation is a full page reload; the server returns a new HTML page.",
-        spa: "One page load. Client-side routing swaps components without a round-trip.",
+        pp: "Every navigation reloads the whole page from the server.",
+        spa: "The app loads once. Navigation swaps the view without leaving the page.",
       },
       {
         label: "State & lifecycle",
-        pp: "State in URL / cookies / sessionStorage. After render, JS runs once via setTimeout, MutationObserver, retry loops.",
-        spa: "In-memory app state. Components have explicit mount / update / unmount hooks.",
+        pp: "Each page is a fresh start. To remember anything across navigation, we have to stash it outside the page. Our code only runs after the platform finishes drawing.",
+        spa: "The app stays loaded. State lives in memory, and components own when they appear, update and leave.",
       },
     ],
   },
   fr: {
-    eyebrow: "Où elles divergent",
-    headers: { pp: "Power Pages", spa: "Application monopage" },
+    eyebrow: "",
+    headers: { pp: "Power Pages", spa: "Application single page" },
     subheaders: {
-      pp: "Un bureau avec plusieurs pièces dédiées.",
-      spa: "Un open space, prêt pour n'importe quel framework.",
+      pp: "Un bureau dont chaque pièce est aménagée pour un usage précis.",
+      spa: "Un open space, prêt pour n'importe quel plan.",
+    },
+    ppIntro: {
+      tagline:
+        "Power Pages couvre contenu, navigation, formulaires, listes et identité pour un portail standard.",
+      studio: {
+        title: "Studio low code",
+        components: [
+          "Pages",
+          "Modèles de page",
+          "Extraits de contenu",
+          "Paramètres du site",
+          "Ensembles de liens",
+          "Fichiers web",
+          "Modèles web",
+        ],
+      },
+      modules: [
+        {
+          title: "Formulaires Dataverse",
+          desc: [
+            "Liés directement aux tables",
+            "Validation et sécurité héritées du modèle de données",
+          ],
+          limits: [
+            "Disposition, types de champs et validation sont dictés par la plateforme",
+          ],
+        },
+        {
+          title: "Listes et vues",
+          desc: [
+            "Pagination, tri et filtre inclus",
+            "Rendues directement à partir des vues Dataverse",
+          ],
+          limits: [
+            "Les personnalisations s'ajoutent par-dessus ce que la plateforme rend",
+          ],
+        },
+        {
+          title: "Identité",
+          desc: [
+            "Azure AD, B2C et fournisseurs sociaux",
+            "Invitations d'utilisateurs externes, sans code",
+          ],
+          limits: [],
+        },
+      ],
+      page: {
+        header: { label: "Modèle de page" },
+        snippet: { label: "Extrait de contenu" },
+        form: { label: "Formulaire Dataverse" },
+        list: { label: "Liste Dataverse" },
+        footer: { label: "Modèle de page" },
+      },
+    },
+    spaIntro: {
+      tagline:
+        "Même backend Power Pages. Le navigateur devient le nôtre : mise en page et appels de données sont du code que nous écrivons.",
+      studio: {
+        title: "Construit dans le code",
+        components: [
+          "Composants",
+          "Routes",
+          "Mises en page",
+          "Client API",
+          "Stores d'état",
+          "Styles",
+          "Config de build",
+        ],
+      },
+      modules: [
+        {
+          title: "Mise en page",
+          desc: [
+            "Chaque page est composée à partir de composants que nous écrivons",
+            "Mise en page, espacement et comportement sont entièrement les nôtres",
+          ],
+          limits: [],
+        },
+        {
+          title: "Opérations de données",
+          desc: [
+            "L'API Web Power Pages sert toujours les données",
+            "Nous écrivons le fetch, le chargement et la gestion d'erreur",
+          ],
+          limits: [],
+        },
+        {
+          title: "Identité",
+          desc: [
+            "Même authentification Entra ID / External ID que Power Pages",
+            "Session utilisateur héritée de la coquille PP",
+          ],
+          limits: [],
+        },
+      ],
+      page: {
+        header: { label: "Mise en page" },
+        snippet: { label: "Composant" },
+        form: { label: "Composant formulaire" },
+        list: { label: "Composant tableau" },
+        footer: { label: "Mise en page" },
+      },
     },
     concepts: [
       {
         label: "Où l'interface est construite",
-        pp: "Le serveur génère le HTML à partir de modèles Liquid sur Dataverse.",
-        spa: "Le navigateur affiche les composants à partir du JavaScript ; le serveur retourne des données, pas des pages.",
-      },
-      {
-        label: "Comment s'intègre la personnalisation",
-        pp: "Superposée à la sortie de la plateforme. JS / CSS appliqués après le rendu de la page.",
-        spa: "Écrite directement. Votre code est le rendu. Aucun DOM de plateforme à surcharger.",
+        pp: "Le serveur construit la page finale et l'envoie au navigateur.",
+        spa: "Le navigateur construit la page à partir de JavaScript. Le serveur n'envoie que des données.",
       },
       {
         label: "Navigation",
-        pp: "Chaque navigation est un rechargement complet ; le serveur retourne une nouvelle page HTML.",
-        spa: "Un seul chargement de page. Le routage côté client échange les composants sans aller-retour.",
+        pp: "Chaque navigation recharge toute la page depuis le serveur.",
+        spa: "L'application se charge une seule fois. La navigation change la vue sans quitter la page.",
       },
       {
         label: "État et cycle de vie",
-        pp: "État dans l'URL / cookies / sessionStorage. Après le rendu, le JS s'exécute une fois via setTimeout, MutationObserver, boucles de relance.",
-        spa: "État applicatif en mémoire. Les composants ont des cycles explicites de montage / mise à jour / démontage.",
+        pp: "Chaque page repart à zéro. Pour conserver quelque chose entre les navigations, nous le rangeons en dehors de la page. Notre code ne s'exécute qu'après que la plateforme a fini de dessiner.",
+        spa: "L'application reste chargée. L'état vit en mémoire, et les composants savent quand ils apparaissent, se mettent à jour et disparaissent.",
       },
     ],
   },
@@ -67,105 +272,387 @@ const LANGS = ["en", "fr"];
 
 const DIAGRAMS = [
   { pp: RenderPP, spa: RenderSPA },
-  { pp: CustomizationPP, spa: CustomizationSPA },
   { pp: NavigationPP, spa: NavigationSPA },
   { pp: StatePP, spa: StateSPA },
 ];
 
-export default function Slide01_TwoArchitectures() {
+export default function Slide01_TwoArchitectures({ step = 0 }) {
   const [lang, setLang] = useState("en");
-  const [step, setStep] = useState(0);
   const t = translations[lang];
-  const maxStep = t.concepts.length - 1;
-
-  /**
-   * Intercept ArrowRight / ArrowLeft / Space in the capture phase so the
-   * deck-level handler in SlideDeck doesn't advance the slide until we've
-   * walked through all four sub-steps. We only consume the event when there
-   * is more (or earlier) sub-state to reveal; otherwise we let it bubble up
-   * and the deck navigates as usual.
-   */
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-
-      const isForward =
-        e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ";
-      const isBack = e.key === "ArrowLeft" || e.key === "PageUp";
-
-      if (isForward && step < maxStep) {
-        e.stopImmediatePropagation();
-        e.preventDefault();
-        setStep((s) => Math.min(s + 1, maxStep));
-      } else if (isBack && step > 0) {
-        e.stopImmediatePropagation();
-        e.preventDefault();
-        setStep((s) => Math.max(s - 1, 0));
-      }
-    };
-    // Capture phase so this fires before SlideDeck's bubble-phase listener.
-    window.addEventListener("keydown", handler, true);
-    return () => window.removeEventListener("keydown", handler, true);
-  }, [step, maxStep]);
+  // step 0 = central-concept intro
+  // step 1 = Power Pages framing (low-code studio + built-in modules)
+  // step 2 = SPA framing (built in code, custom layout + data + auth)
+  // steps 3..N+2 = the N concepts revealed in order
 
   return (
     <div className="w-full h-full bg-white flex flex-col font-sans text-neutral-900">
       {/* Top strip: eyebrow + lang toggle */}
-      <header className="px-16 pt-12 flex items-center justify-between">
+      <header className="px-20 pt-12 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-brand" />
-          <span className="text-sm tracking-[0.2em] uppercase text-neutral-500">
-            {t.eyebrow}
-          </span>
+          {t.eyebrow && (
+            <>
+              <span className="inline-block w-2 h-2 rounded-full bg-brand" />
+              <span className="text-base tracking-[0.22em] uppercase text-neutral-500">
+                {t.eyebrow}
+              </span>
+            </>
+          )}
         </div>
-        <div className="flex items-center gap-6">
-          <StepDots count={t.concepts.length} active={step} />
-          <LangToggle lang={lang} setLang={setLang} />
-        </div>
+        <LangToggle lang={lang} setLang={setLang} />
       </header>
 
-      {/* Body */}
-      <main className="flex-1 flex flex-col px-16 pt-6 pb-2 min-h-0">
-        {/* Architecture column headers + per-column metaphor subtitle */}
-        <div className="grid grid-cols-[80px_1fr_1fr] gap-x-12 pb-4 border-b-2 border-neutral-900">
-          <div />
-          <div>
-            <div className="text-[26px] font-medium leading-tight text-neutral-900">
-              {t.headers.pp}
+      {/* Body. The View Transitions API handles step-to-step fades and morphs
+          paired elements (titles + subheaders), so we no longer remount per
+          step or run a CSS fade — both would fight the snapshot capture. */}
+      <main className="flex-1 flex flex-col px-20 pt-8 pb-10 min-h-0">
+        {step === 0 && <IntroView t={t} />}
+        {step === 1 && (
+          <ArchIntroSection
+            title={t.headers.pp}
+            titleClass="text-neutral-900"
+            subheader={t.subheaders.pp}
+            tagline={t.ppIntro.tagline}
+            studio={t.ppIntro.studio}
+            modules={t.ppIntro.modules}
+            page={t.ppIntro.page}
+            ParentIcon={PP_PARENT_ICON}
+            moduleIcons={PP_MODULE_ICONS}
+            transitionPrefix="arch-pp"
+          />
+        )}
+        {step === 2 && (
+          <ArchIntroSection
+            title={t.headers.spa}
+            titleClass="text-brand"
+            subheader={t.subheaders.spa}
+            tagline={t.spaIntro.tagline}
+            studio={t.spaIntro.studio}
+            modules={t.spaIntro.modules}
+            page={t.spaIntro.page}
+            ParentIcon={SPA_PARENT_ICON}
+            moduleIcons={SPA_MODULE_ICONS}
+            transitionPrefix="arch-spa"
+          />
+        )}
+        {step >= 3 && (
+          <>
+            {/* Architecture column headers + per-column metaphor subtitle */}
+            <div className="grid grid-cols-[100px_1fr_1fr] gap-x-14 pb-6 border-b-2 border-neutral-900">
+              <div />
+              <div>
+                <div className="text-[44px] font-medium leading-[1.05] tracking-tight text-neutral-900">
+                  {t.headers.pp}
+                </div>
+                <div className="mt-3 text-[22px] italic text-neutral-500 leading-snug">
+                  {t.subheaders.pp}
+                </div>
+              </div>
+              <div>
+                <div className="text-[44px] font-medium leading-[1.05] tracking-tight text-brand">
+                  {t.headers.spa}
+                </div>
+                <div className="mt-3 text-[22px] italic text-neutral-500 leading-snug">
+                  {t.subheaders.spa}
+                </div>
+              </div>
             </div>
-            <div className="mt-2 text-[14px] italic text-neutral-500 leading-snug">
-              {t.subheaders.pp}
-            </div>
-          </div>
-          <div>
-            <div className="text-[26px] font-medium leading-tight text-neutral-900">
-              {t.headers.spa}
-            </div>
-            <div className="mt-2 text-[14px] italic text-neutral-500 leading-snug">
-              {t.subheaders.spa}
-            </div>
-          </div>
-        </div>
 
-        {/* Concept rows — progressive reveal */}
-        <div className="flex flex-col flex-1 min-h-0">
-          {t.concepts.map((c, i) => {
-            if (i > step) return null;
-            return (
-              <ConceptRow
-                key={i}
-                index={i}
-                concept={c}
-                Diagram={DIAGRAMS[i]}
-                expanded={i === step}
-              />
-            );
-          })}
-        </div>
+            {/* Concept rows — progressive reveal. step 3..N+2 maps to concepts[0..N-1]. */}
+            <div className="flex flex-col flex-1 min-h-0">
+              {t.concepts.map((c, i) => {
+                const activeConcept = step - 3;
+                if (i > activeConcept) return null;
+                return (
+                  <ConceptRow
+                    key={i}
+                    index={i}
+                    concept={c}
+                    Diagram={DIAGRAMS[i]}
+                    expanded={i === activeConcept}
+                  />
+                );
+              })}
+            </div>
+          </>
+        )}
       </main>
+    </div>
+  );
+}
 
-      {/* Reserved footer space (intentionally empty) */}
-      <footer className="h-20" aria-hidden="true" />
+/* Single-side framing used for both step 1 (Power Pages) and step 2 (SPA).
+   Two columns: a Legend (parent card with chips + module sub-cards explaining
+   each component) and a Map (a wireframe page placing the named components
+   in their actual positions). Both intros share the same map structure so the
+   parallel reads at a glance — the page is the same, only the labels differ. */
+function ArchIntroSection({
+  title,
+  titleClass,
+  subheader,
+  tagline,
+  studio,
+  modules,
+  page,
+  ParentIcon,
+  moduleIcons,
+  transitionPrefix,
+}) {
+  return (
+    <div className="flex-1 flex flex-col gap-6 min-h-0 pt-2">
+      <div>
+        <div
+          className={`text-[60px] font-medium leading-[1.02] tracking-tight ${titleClass}`}
+          style={{ viewTransitionName: `${transitionPrefix}-title` }}
+        >
+          {title}
+        </div>
+        <div
+          className="mt-3 text-[26px] italic text-neutral-500 leading-snug max-w-[60ch]"
+          style={{ viewTransitionName: `${transitionPrefix}-subheader` }}
+        >
+          {subheader}
+        </div>
+      </div>
+
+      {/* Tagline + Legend + Wireframe form a single "info" block. Naming the
+          wrapper lets the Power Pages variant scroll up as one unit when the
+          user advances from step 0; the SPA variant uses the default
+          crossfade. */}
+      <div
+        className="flex-1 flex flex-col gap-5 min-h-0"
+        style={{ viewTransitionName: `${transitionPrefix}-info` }}
+      >
+        <div className="text-[20px] text-neutral-500 leading-snug max-w-[70ch]">
+          {tagline}
+        </div>
+        <div className="flex-1 grid grid-cols-2 gap-8 min-h-0">
+          <Legend
+            studio={studio}
+            modules={modules}
+            ParentIcon={ParentIcon}
+            moduleIcons={moduleIcons}
+          />
+          <WireframePage page={page} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Legend({ studio, modules, ParentIcon, moduleIcons }) {
+  return (
+    <div className="flex flex-col gap-4 min-h-0">
+      {/* Parent card with chips */}
+      <div className="rounded-2xl border border-neutral-200 bg-neutral-50/60 p-5 flex flex-col gap-4">
+        <div className="flex items-center gap-4">
+          <span className="flex-none w-12 h-12 rounded-lg bg-white border border-neutral-200 flex items-center justify-center text-neutral-700">
+            <ParentIcon className="w-6 h-6" strokeWidth={1.5} />
+          </span>
+          <div className="text-[24px] font-medium text-neutral-900 leading-tight">
+            {studio.title}
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {studio.components.map((name) => (
+            <span
+              key={name}
+              className="px-3 py-1 rounded-full bg-white border border-neutral-200 text-[15px] text-neutral-700"
+            >
+              {name}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Module sub-cards stacked vertically */}
+      <div className="flex flex-col gap-3 flex-1 min-h-0">
+        {modules.map((m, i) => (
+          <ModuleCard key={i} module={m} icon={moduleIcons[i]} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ModuleCard({ module: m, icon: Icon }) {
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-4 flex gap-4 flex-1 min-h-0">
+      <span className="flex-none w-11 h-11 rounded-lg bg-neutral-50 border border-neutral-200 flex items-center justify-center text-neutral-700">
+        <Icon className="w-6 h-6" strokeWidth={1.5} />
+      </span>
+      <div className="flex-1 flex flex-col">
+        <div className="text-[18px] font-medium text-neutral-900 leading-tight mb-2">
+          {m.title}
+        </div>
+        <ul className="flex flex-col gap-1.5">
+          {m.desc.map((d, j) => (
+            <BulletItem key={`d${j}`} text={d} />
+          ))}
+          {m.limits.map((l, j) => (
+            <BulletItem key={`l${j}`} text={l} limit />
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function BulletItem({ text, limit = false }) {
+  return (
+    <li className="flex items-start gap-2.5 text-[15px] leading-snug">
+      {limit ? (
+        <AlertCircle
+          className="flex-none mt-[3px] w-4 h-4 text-amber-600"
+          strokeWidth={1.75}
+          aria-label="Limits us"
+        />
+      ) : (
+        <span className="flex-none mt-[9px] w-1.5 h-1.5 rounded-full bg-neutral-400" />
+      )}
+      <span className={limit ? "text-neutral-800" : "text-neutral-600"}>
+        {text}
+      </span>
+    </li>
+  );
+}
+
+function WireframePage({ page }) {
+  return (
+    <div className="flex flex-col gap-3 min-h-0">
+      <Region label={page.header.label}>
+        <MockHeader />
+      </Region>
+      <Region label={page.snippet.label}>
+        <MockSnippet />
+      </Region>
+      <div className="grid grid-cols-2 gap-3 flex-1 min-h-0">
+        <Region label={page.form.label}>
+          <MockForm />
+        </Region>
+        <Region label={page.list.label}>
+          <MockList />
+        </Region>
+      </div>
+      <Region label={page.footer.label}>
+        <MockFooter />
+      </Region>
+    </div>
+  );
+}
+
+function Region({ label, children }) {
+  return (
+    <div className="relative border border-dashed border-neutral-300 rounded-lg bg-neutral-50/50 px-3 pt-4 pb-2.5 flex flex-col min-h-0">
+      <span className="absolute -top-2.5 left-3 px-2 py-0.5 rounded-full bg-brand/15 text-brand text-[12px] font-semibold uppercase tracking-wider">
+        {label}
+      </span>
+      <div className="flex-1 min-h-0">{children}</div>
+    </div>
+  );
+}
+
+function MockHeader() {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <span className="w-6 h-6 bg-neutral-300 rounded" />
+        <div className="flex gap-2">
+          <span className="w-9 h-1.5 bg-neutral-300 rounded-full" />
+          <span className="w-9 h-1.5 bg-neutral-300 rounded-full" />
+          <span className="w-9 h-1.5 bg-neutral-300 rounded-full" />
+        </div>
+      </div>
+      <span className="w-6 h-6 bg-neutral-300 rounded-full" />
+    </div>
+  );
+}
+
+function MockSnippet() {
+  return (
+    <div className="h-5 rounded bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200" />
+  );
+}
+
+function MockForm() {
+  return (
+    <div className="flex flex-col gap-2">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="flex flex-col gap-1">
+          <span className="w-10 h-1.5 bg-neutral-300 rounded-full" />
+          <span className="h-4 bg-white border border-neutral-200 rounded" />
+        </div>
+      ))}
+      <span className="self-start mt-1 px-2.5 py-0.5 bg-neutral-300 rounded text-[9px] text-white">
+        ▓▓▓▓
+      </span>
+    </div>
+  );
+}
+
+function MockList() {
+  return (
+    <div className="flex flex-col">
+      {[0, 1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="flex items-center gap-2 py-1 border-b border-neutral-200 last:border-0"
+        >
+          <span className="w-2.5 h-2.5 bg-neutral-300 rounded-sm" />
+          <span className="flex-1 h-1.5 bg-neutral-200 rounded-full" />
+          <span className="w-8 h-1.5 bg-neutral-200 rounded-full" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MockFooter() {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="w-24 h-1.5 bg-neutral-200 rounded-full" />
+      <div className="flex gap-2">
+        <span className="w-8 h-1.5 bg-neutral-200 rounded-full" />
+        <span className="w-8 h-1.5 bg-neutral-200 rounded-full" />
+      </div>
+    </div>
+  );
+}
+
+/* Step 0 — centered "two architectures" framing before drilling into concepts.
+   The title + subheader on each side are tagged with view-transition-names that
+   match the next step's ArchIntroSection so the View Transitions API morphs
+   them in place when the user advances. */
+function IntroView({ t }) {
+  return (
+    <div className="flex-1 grid grid-cols-2 gap-x-24 items-center">
+      <div className="flex flex-col items-start">
+        <div
+          className="text-[112px] font-medium leading-[0.98] tracking-tight text-neutral-900"
+          style={{ viewTransitionName: "arch-pp-title" }}
+        >
+          {t.headers.pp}
+        </div>
+        <div
+          className="mt-10 text-[32px] italic text-neutral-500 leading-snug max-w-[24ch]"
+          style={{ viewTransitionName: "arch-pp-subheader" }}
+        >
+          {t.subheaders.pp}
+        </div>
+      </div>
+      <div className="flex flex-col items-start border-l border-neutral-200 pl-20">
+        <div
+          className="text-[112px] font-medium leading-[0.98] tracking-tight text-brand"
+          style={{ viewTransitionName: "arch-spa-title" }}
+        >
+          {t.headers.spa}
+        </div>
+        <div
+          className="mt-10 text-[32px] italic text-neutral-500 leading-snug max-w-[24ch]"
+          style={{ viewTransitionName: "arch-spa-subheader" }}
+        >
+          {t.subheaders.spa}
+        </div>
+      </div>
     </div>
   );
 }
@@ -177,29 +664,29 @@ function ConceptRow({ index, concept, Diagram, expanded }) {
   // shrink down but keep the PP / SPA descriptions visible as a running
   // summary so audience can re-scan what was already covered.
   const wrapper = expanded
-    ? "flex-1 flex flex-col justify-center py-3 border-b border-neutral-200"
-    : "py-2.5 border-b border-neutral-200";
+    ? "flex-1 flex flex-col justify-center py-5 border-b border-neutral-200 transition-all duration-300"
+    : "py-4 border-b border-neutral-200 transition-all duration-300";
 
   return (
     <div className={wrapper}>
       {/* Row header: number + label */}
       <div
-        className={`grid grid-cols-[80px_1fr] gap-x-12 items-baseline ${
-          expanded ? "mb-3" : "mb-1.5"
+        className={`grid grid-cols-[100px_1fr] gap-x-14 items-baseline transition-all duration-300 ${
+          expanded ? "mb-5" : "mb-2"
         }`}
       >
         <span
-          className={`font-light tabular-nums leading-none transition-colors ${
-            expanded ? "text-[28px] text-brand" : "text-[16px] text-brand/60"
+          className={`font-light tabular-nums leading-none transition-all duration-300 ${
+            expanded ? "text-[48px] text-brand" : "text-[22px] text-brand/60"
           }`}
         >
           {String(index + 1).padStart(2, "0")}
         </span>
         <span
-          className={`tracking-[0.18em] uppercase font-medium transition-colors ${
+          className={`tracking-[0.18em] uppercase font-medium transition-all duration-300 ${
             expanded
-              ? "text-[15px] text-neutral-900"
-              : "text-[11px] text-neutral-500"
+              ? "text-[22px] text-neutral-900"
+              : "text-[14px] text-neutral-500"
           }`}
         >
           {concept.label}
@@ -207,27 +694,27 @@ function ConceptRow({ index, concept, Diagram, expanded }) {
       </div>
 
       {/* Body: text always visible; diagrams only on the expanded row. */}
-      <div className="grid grid-cols-[80px_1fr_1fr] gap-x-12 items-start">
+      <div className="grid grid-cols-[100px_1fr_1fr] gap-x-14 items-start">
         <div />
-        <div className={`flex flex-col ${expanded ? "gap-3" : ""}`}>
+        <div className={`flex flex-col ${expanded ? "gap-5" : ""}`}>
           <p
-            className={
+            className={`transition-all duration-300 ${
               expanded
-                ? "text-[18px] leading-[1.5] font-light text-neutral-700"
-                : "text-[13px] leading-[1.4] font-light text-neutral-500"
-            }
+                ? "text-[28px] leading-[1.45] font-light text-neutral-700"
+                : "text-[16px] leading-[1.45] font-light text-neutral-500"
+            }`}
           >
             {concept.pp}
           </p>
           {expanded && <Diagram.pp />}
         </div>
-        <div className={`flex flex-col ${expanded ? "gap-3" : ""}`}>
+        <div className={`flex flex-col ${expanded ? "gap-5" : ""}`}>
           <p
-            className={
+            className={`transition-all duration-300 ${
               expanded
-                ? "text-[18px] leading-[1.5] font-light text-neutral-700"
-                : "text-[13px] leading-[1.4] font-light text-neutral-500"
-            }
+                ? "text-[28px] leading-[1.45] font-light text-neutral-700"
+                : "text-[16px] leading-[1.45] font-light text-neutral-500"
+            }`}
           >
             {concept.spa}
           </p>
@@ -238,24 +725,9 @@ function ConceptRow({ index, concept, Diagram, expanded }) {
   );
 }
 
-function StepDots({ count, active }) {
-  return (
-    <div className="flex items-center gap-1.5" aria-label={`Step ${active + 1} of ${count}`}>
-      {Array.from({ length: count }).map((_, i) => (
-        <span
-          key={i}
-          className={`block w-1.5 h-1.5 rounded-full transition-colors ${
-            i <= active ? "bg-brand" : "bg-neutral-300"
-          }`}
-        />
-      ))}
-    </div>
-  );
-}
-
 function LangToggle({ lang, setLang }) {
   return (
-    <div className="flex items-center gap-2 text-[13px] tracking-[0.2em] uppercase">
+    <div className="flex items-center gap-2 text-[15px] tracking-[0.22em] uppercase">
       {LANGS.map((l, i) => (
         <span key={l} className="flex items-center gap-2">
           {i > 0 && <span className="text-neutral-300">·</span>}
@@ -291,12 +763,12 @@ function DiagramFrame({ children, label }) {
     <div className="flex flex-col gap-2">
       <svg
         viewBox="0 0 280 60"
-        className="w-full h-[88px]"
+        className="w-full h-[120px]"
         preserveAspectRatio="xMinYMid meet"
       >
         {children}
       </svg>
-      <span className="text-[11px] tracking-[0.2em] uppercase text-neutral-400">
+      <span className="text-[13px] tracking-[0.2em] uppercase text-neutral-400">
         {label}
       </span>
     </div>
@@ -366,81 +838,7 @@ function RenderSPA() {
   );
 }
 
-/* Row 2 — Customization */
-
-function CustomizationPP() {
-  // Platform = solid filled block on the left (foundation, given to you).
-  // Patches  = dashed outlined strips on the right (added on top, your bolt-ons).
-  // Visual treatment carries the distinction; layout reads left → right.
-  const patches = [
-    { x: 152, y: 8,  w: 124 },
-    { x: 146, y: 17, w: 130 },
-    { x: 154, y: 26, w: 122 },
-    { x: 148, y: 35, w: 128 },
-    { x: 152, y: 44, w: 124 },
-  ];
-  return (
-    <DiagramFrame label="Platform + patches on top">
-      {/* Platform — LEFT — solid filled block */}
-      <rect
-        x="2"
-        y="12"
-        width="118"
-        height="36"
-        rx="3"
-        fill="#e5e5e5"
-        stroke="#525252"
-      />
-      <text
-        x="61"
-        y="34"
-        textAnchor="middle"
-        fontSize="11"
-        fontWeight="500"
-        fill="#404040"
-      >
-        platform
-      </text>
-
-      {/* Plus connector */}
-      <g stroke={NEUTRAL_LIGHT} strokeWidth="1.5">
-        <line x1="128" y1="30" x2="142" y2="30" />
-        <line x1="135" y1="23" x2="135" y2="37" />
-      </g>
-
-      {/* Patches — RIGHT — dashed outlined strips, offset to read as stacked */}
-      {patches.map((p, i) => (
-        <rect
-          key={i}
-          x={p.x}
-          y={p.y}
-          width={p.w}
-          height="6"
-          rx="1.5"
-          fill="none"
-          stroke={NEUTRAL}
-          strokeDasharray="3 2"
-        />
-      ))}
-    </DiagramFrame>
-  );
-}
-
-function CustomizationSPA() {
-  return (
-    <DiagramFrame label="One layer, your code">
-      {/* single solid block */}
-      <rect x="40" y="14" width="200" height="32" rx="3" fill="none" stroke={BRAND} />
-      <line x1="48" y1="22" x2="232" y2="22" stroke={BRAND} strokeOpacity="0.5" />
-      <line x1="48" y1="28" x2="220" y2="28" stroke={BRAND} strokeOpacity="0.5" />
-      <line x1="48" y1="34" x2="232" y2="34" stroke={BRAND} strokeOpacity="0.5" />
-      <line x1="48" y1="40" x2="200" y2="40" stroke={BRAND} strokeOpacity="0.5" />
-      <text x="140" y="56" textAnchor="middle" fontSize="8" fill={BRAND}>your code = the render</text>
-    </DiagramFrame>
-  );
-}
-
-/* Row 3 — Navigation */
+/* Row 2 — Navigation */
 
 function NavigationPP() {
   return (
@@ -457,11 +855,17 @@ function NavigationPP() {
           <line x1="6" y1="28" x2="46" y2="28" stroke={NEUTRAL_LIGHT} />
         </g>
       ))}
-      {/* reload arrows between pages */}
+      {/* reload arrows between pages — arrowhead rotated to match the
+          Bezier's tangent at the endpoint (≈49° below horizontal) so it
+          reads as an arrow tip, not a flag stuck on a curve. */}
       {[0, 1].map((i) => (
         <g key={i} transform={`translate(${75 + i * 90}, 28)`}>
           <path d="M0 0 Q 7 -8 14 0" fill="none" stroke={NEUTRAL} />
-          <polygon points="14,0 11,-3 11,3" fill={NEUTRAL} />
+          <polygon
+            points="0,0 -3,-3 -3,3"
+            fill={NEUTRAL}
+            transform="translate(14, 0) rotate(49)"
+          />
           <text x="7" y="-10" textAnchor="middle" fontSize="7" fill={NEUTRAL}>reload</text>
         </g>
       ))}
@@ -497,7 +901,7 @@ function NavigationSPA() {
   );
 }
 
-/* Row 4 — State & lifecycle */
+/* Row 3 — State & lifecycle */
 
 function StatePP() {
   return (
@@ -535,29 +939,47 @@ function StatePP() {
 }
 
 function StateSPA() {
+  // No pill borders: the icons stand on their own with labels underneath.
+  // Distinct shapes carry the meaning so the three phases read as different.
+  //   mount   = downward arrow (component appears)
+  //   update  = circular refresh (state changes)
+  //   unmount = X (component leaves)
   return (
-    <DiagramFrame label="State lives inside the component">
+    <DiagramFrame label="Lifecycle and state inside the component">
       {/* component frame */}
-      <rect x="20" y="8" width="240" height="40" rx="3" fill="none" stroke={BRAND} />
-      <text x="28" y="18" fontSize="8" fill={BRAND}>{`<Component>`}</text>
+      <rect x="2" y="4" width="276" height="50" rx="3" fill="none" stroke={BRAND} />
+      <text x="10" y="14" fontSize="8" fill={BRAND}>{`<Component>`}</text>
 
-      {/* lifecycle bubbles inside */}
-      <g>
-        <circle cx="80" cy="32" r="10" fill="none" stroke={BRAND} />
-        <text x="80" y="35" textAnchor="middle" fontSize="7" fill={BRAND}>mount</text>
-      </g>
-      <g>
-        <circle cx="140" cy="32" r="10" fill="none" stroke={BRAND} />
-        <text x="140" y="35" textAnchor="middle" fontSize="7" fill={BRAND}>state</text>
-      </g>
-      <g>
-        <circle cx="200" cy="32" r="10" fill="none" stroke={BRAND} />
-        <text x="200" y="35" textAnchor="middle" fontSize="7" fill={BRAND}>unmount</text>
+      {/* Phase 1 — mount */}
+      <g transform="translate(62, 30)">
+        <line x1="0" y1="-8" x2="0" y2="3" stroke={BRAND} strokeWidth="2" />
+        <polygon points="0,8 -5,2 5,2" fill={BRAND} />
+        <text x="0" y="22" textAnchor="middle" fontSize="9" fill={BRAND}>mount</text>
       </g>
 
-      {/* connecting lines */}
-      <line x1="90" y1="32" x2="130" y2="32" stroke={BRAND} strokeOpacity="0.4" />
-      <line x1="150" y1="32" x2="190" y2="32" stroke={BRAND} strokeOpacity="0.4" />
+      {/* arrow → */}
+      <line x1="78" y1="30" x2="124" y2="30" stroke={BRAND} strokeOpacity="0.4" />
+      <polygon points="124,30 119,28 119,32" fill={BRAND} fillOpacity="0.4" />
+
+      {/* Phase 2 — update: 270° clockwise arc ending at the left, with the
+          arrowhead aligned to the tangent (pointing up) so the curve reads
+          as a continuous circular motion rather than a flag stuck on. */}
+      <g transform="translate(140, 30)">
+        <path d="M 0 -7 A 7 7 0 1 1 -7 0" fill="none" stroke={BRAND} strokeWidth="2" />
+        <polygon points="-7,-4 -10,0 -4,0" fill={BRAND} />
+        <text x="0" y="22" textAnchor="middle" fontSize="9" fill={BRAND}>update</text>
+      </g>
+
+      {/* arrow → */}
+      <line x1="156" y1="30" x2="202" y2="30" stroke={BRAND} strokeOpacity="0.4" />
+      <polygon points="202,30 197,28 197,32" fill={BRAND} fillOpacity="0.4" />
+
+      {/* Phase 3 — unmount */}
+      <g transform="translate(218, 30)">
+        <line x1="-7" y1="-7" x2="7" y2="7" stroke={BRAND} strokeWidth="2" />
+        <line x1="7" y1="-7" x2="-7" y2="7" stroke={BRAND} strokeWidth="2" />
+        <text x="0" y="22" textAnchor="middle" fontSize="9" fill={BRAND}>unmount</text>
+      </g>
     </DiagramFrame>
   );
 }

@@ -18,7 +18,7 @@ export default function Slide02_HowItRendersToday() {
         <div className="flex items-center gap-3">
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-brand" />
           <span className="text-sm tracking-[0.2em] uppercase text-neutral-500">
-            How a portal page renders today
+            Power Pages website
           </span>
         </div>
       </header>
@@ -137,14 +137,6 @@ function CustomizationCard() {
           <PatchStrip key={p.label} index={i} total={patches.length} {...p} />
         ))}
       </div>
-
-      {/* Side ruler hinting at "thickness" */}
-      <span className="absolute -left-5 top-20 bottom-6 w-px bg-brand/30" />
-      <span className="absolute -left-6 top-20 w-3 h-px bg-brand/30" />
-      <span className="absolute -left-6 bottom-6 w-3 h-px bg-brand/30" />
-      <span className="absolute -left-[78px] top-1/2 -translate-y-1/2 -rotate-90 origin-center text-[10px] tracking-[0.25em] uppercase text-brand/70 whitespace-nowrap">
-        thickness = risk
-      </span>
     </div>
   );
 }

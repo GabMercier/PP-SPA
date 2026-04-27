@@ -1,42 +1,93 @@
 import { useEffect, useState, useCallback } from 'react'
+import { flushSync } from 'react-dom'
+
+// Wrap a state update in the View Transitions API when available so paired
+// elements (e.g. the architecture titles) morph from one layout to the next
+// instead of crossfading. Per-element animations are tuned in index.css.
+// Falls back to a plain update on browsers without VT support.
+function withTransition(fn) {
+  if (typeof document !== 'undefined' && document.startViewTransition) {
+    document.startViewTransition(() => flushSync(fn))
+  } else {
+    fn()
+  }
+}
 
 /**
  * SlideDeck — the presentation shell.
  *
- * Responsibilities:
- *   1. Render the current slide full-window
- *   2. Listen for arrow keys (← / →) and Home / End to navigate
- *   3. Show a minimal slide counter in the corner (hidden in pure fullscreen, see CSS)
- *   4. Allow F to toggle browser fullscreen (handy during the demo)
+ * Owns the (slideIndex, slideStep) cursor for the whole deck. Slides are
+ * controlled: each receives `step` as a prop and renders accordingly. The
+ * deck handles all keyboard navigation and renders a single progress bar
+ * across the bottom that shows both the slide and sub-step position.
  *
- * Each slide is just a React component. To add a slide:
- *   - drop a file in src/slides/SlideXX.jsx exporting a default component
- *   - import it in App.jsx and add it to the `slides` array passed here
+ * Slide registration (in App.jsx) declares each slide's number of sub-steps:
+ *   { component: SlideX, title: '...', steps: N }
  *
- * The deck is intentionally framework-light: no router, no state library.
- * For a 10-slide presentation that's overkill; useState handles it fine.
+ * Keyboard:
+ *   ← / →     walk through every (slide, step) station, in order
+ *   PageUp/Dn same
+ *   Space     forward
+ *   Home/End  jump to first/last station
+ *   F         toggle browser fullscreen
  */
 export default function SlideDeck({ slides }) {
-  const [index, setIndex] = useState(0)
+  const [slideIndex, setSlideIndex] = useState(0)
+  const [slideStep, setSlideStep] = useState(0)
 
-  // Clamp index when slides array changes length (e.g. during dev with HMR)
+  const currentSlide = slides[slideIndex]
+  const currentSteps = currentSlide?.steps ?? 1
+
+  // Clamp on HMR / slide-list edits so we never point past the end.
   useEffect(() => {
-    if (index >= slides.length) setIndex(slides.length - 1)
-  }, [slides.length, index])
+    if (slideIndex >= slides.length) {
+      setSlideIndex(Math.max(0, slides.length - 1))
+      setSlideStep(0)
+    } else if (slideStep >= currentSteps) {
+      setSlideStep(Math.max(0, currentSteps - 1))
+    }
+  }, [slides.length, slideIndex, slideStep, currentSteps])
 
   const goNext = useCallback(() => {
-    setIndex((i) => Math.min(i + 1, slides.length - 1))
-  }, [slides.length])
+    withTransition(() => {
+      if (slideStep < currentSteps - 1) {
+        setSlideStep((s) => s + 1)
+      } else if (slideIndex < slides.length - 1) {
+        setSlideIndex((i) => i + 1)
+        setSlideStep(0)
+      }
+    })
+  }, [slideIndex, slideStep, currentSteps, slides.length])
 
   const goPrev = useCallback(() => {
-    setIndex((i) => Math.max(i - 1, 0))
+    withTransition(() => {
+      if (slideStep > 0) {
+        setSlideStep((s) => s - 1)
+      } else if (slideIndex > 0) {
+        const prev = slides[slideIndex - 1]
+        const prevSteps = prev?.steps ?? 1
+        setSlideIndex((i) => i - 1)
+        setSlideStep(prevSteps - 1)
+      }
+    })
+  }, [slideIndex, slideStep, slides])
+
+  const goFirst = useCallback(() => {
+    withTransition(() => {
+      setSlideIndex(0)
+      setSlideStep(0)
+    })
   }, [])
 
-  const goFirst = useCallback(() => setIndex(0), [])
-  const goLast = useCallback(() => setIndex(slides.length - 1), [slides.length])
+  const goLast = useCallback(() => {
+    withTransition(() => {
+      const last = slides.length - 1
+      const lastSteps = slides[last]?.steps ?? 1
+      setSlideIndex(last)
+      setSlideStep(lastSteps - 1)
+    })
+  }, [slides])
 
-  // Toggle browser fullscreen — F11 also works but this gives a one-key option
-  // that doesn't trigger the browser's "press Esc to exit" banner as aggressively.
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen?.()
@@ -45,16 +96,13 @@ export default function SlideDeck({ slides }) {
     }
   }, [])
 
-  // Keyboard handler — registered once on mount
   useEffect(() => {
     const handler = (e) => {
-      // Ignore when user is typing in an input (defensive, slides shouldn't have inputs)
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
-
       switch (e.key) {
         case 'ArrowRight':
         case 'PageDown':
-        case ' ': // spacebar — common "advance" key for clickers
+        case ' ':
           e.preventDefault()
           goNext()
           break
@@ -81,27 +129,22 @@ export default function SlideDeck({ slides }) {
     return () => window.removeEventListener('keydown', handler)
   }, [goNext, goPrev, goFirst, goLast, toggleFullscreen])
 
-  const CurrentSlide = slides[index]?.component
-  const slideTitle = slides[index]?.title ?? ''
+  const CurrentSlide = currentSlide?.component
 
   return (
     <div className="w-screen h-screen bg-white relative overflow-hidden">
-      {/* The slide itself fills the whole window */}
-      <div className="w-full h-full">
-        {CurrentSlide ? <CurrentSlide /> : <EmptyState />}
+      {/* Slide region. Re-keyed on slideIndex so each new slide eases in;
+          step changes within a slide do not remount. */}
+      <div key={slideIndex} className="w-full h-full animate-slide-fade-in">
+        {CurrentSlide ? (
+          <CurrentSlide step={slideStep} />
+        ) : (
+          <EmptyState />
+        )}
       </div>
 
-      {/* Slide counter — bottom-right, low-opacity so it doesn't dominate.
-          Hide it during real demo if you prefer by removing this block. */}
-      <div className="absolute bottom-3 right-4 text-xs font-medium text-slate-400 select-none pointer-events-none">
-        <span className="tabular-nums">
-          {index + 1} / {slides.length}
-        </span>
-        {slideTitle && <span className="ml-2 text-slate-300">· {slideTitle}</span>}
-      </div>
-
-      {/* First-load hint — fades after 3s. Helps when you forget the shortcuts. */}
-      <KeyboardHint />
+      {/* Deck-wide progress bar at the bottom. */}
+      <ProgressBar slides={slides} slideIndex={slideIndex} slideStep={slideStep} />
     </div>
   )
 }
@@ -115,16 +158,102 @@ function EmptyState() {
   )
 }
 
-function KeyboardHint() {
-  const [visible, setVisible] = useState(true)
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(false), 3000)
-    return () => clearTimeout(t)
-  }, [])
-  if (!visible) return null
+/* Progress bar
+ * --------------------------------------------------------------------------
+ * Sits at the top of the deck. Hidden on the title slide so it doesn't
+ * compete with the breathing dot — the title doesn't count toward progress.
+ *
+ * The boundary markers (one per non-title slide) are evenly distributed
+ * across the bar. Sub-steps are NOT part of the equal distribution: they
+ * sit at proportional positions inside the gap between their slide's
+ * boundary and the next, and only become visible when the user is actually
+ * stopped on that sub-step. The fill line still extends to the current
+ * position so the audience sees progress smoothly.
+ */
+function ProgressBar({ slides, slideIndex, slideStep }) {
+  // Hide entirely on the title slide.
+  if (slideIndex === 0) return null
+
+  // Boundaries = every slide except the title.
+  const boundaries = slides.slice(1).map((s, i) => ({
+    deckIndex: i + 1,
+    steps: s?.steps ?? 1,
+  }))
+  const denom = Math.max(1, boundaries.length - 1)
+  const currentBoundaryIdx = boundaries.findIndex(
+    (b) => b.deckIndex === slideIndex,
+  )
+  const currentBoundary = boundaries[currentBoundaryIdx]
+
+  // Where the playhead sits (0..1 of bar width).
+  let activePos
+  if (slideStep === 0 || !currentBoundary) {
+    activePos = currentBoundaryIdx / denom
+  } else {
+    // Place sub-step proportionally inside the gap to the next boundary so
+    // the fill line slides smoothly through it.
+    const stepFraction = slideStep / currentBoundary.steps
+    activePos = (currentBoundaryIdx + stepFraction) / denom
+  }
+  const fillPct = activePos * 100
+
   return (
-    <div className="absolute bottom-3 left-4 text-xs text-slate-400 select-none pointer-events-none transition-opacity">
-      ← → to navigate · F for fullscreen
+    <div
+      className="absolute top-6 left-16 right-16 pointer-events-none"
+      style={{ viewTransitionName: 'deck-progress' }}
+    >
+      <div className="relative h-4">
+        {/* Track */}
+        <div className="absolute inset-x-0 top-1/2 h-px bg-neutral-200 -translate-y-1/2" />
+        {/* Filled portion up to the playhead */}
+        <div
+          className="absolute left-0 top-1/2 h-[2px] bg-brand -translate-y-1/2 transition-all duration-300 ease-out"
+          style={{ width: `${fillPct}%` }}
+        />
+        {/* Boundary markers, evenly distributed */}
+        {boundaries.map((b, i) => {
+          const onThisBoundary =
+            b.deckIndex === slideIndex && slideStep === 0
+          const isPast =
+            b.deckIndex < slideIndex ||
+            (b.deckIndex === slideIndex && slideStep > 0)
+          return (
+            <BoundaryMarker
+              key={b.deckIndex}
+              leftPct={(i / denom) * 100}
+              active={onThisBoundary}
+              past={isPast}
+            />
+          )
+        })}
+        {/* Active sub-step marker — only rendered when stopped on a sub-step */}
+        {slideStep > 0 && currentBoundary && (
+          <SubstepMarker leftPct={fillPct} />
+        )}
+      </div>
     </div>
+  )
+}
+
+function BoundaryMarker({ leftPct, active, past }) {
+  const filled = active || past
+  const size = active ? 'w-3.5 h-3.5' : 'w-2.5 h-2.5'
+  const color = filled ? 'bg-brand' : 'bg-neutral-300'
+  return (
+    <span
+      className={`absolute top-1/2 rounded-full ${size} ${color} transition-all duration-300 ease-out ${
+        active ? 'ring-4 ring-brand/15' : ''
+      }`}
+      style={{ left: `${leftPct}%`, transform: 'translate(-50%, -50%)' }}
+    />
+  )
+}
+
+function SubstepMarker({ leftPct }) {
+  return (
+    <span
+      className="absolute top-1/2 w-2 h-2 rounded-full bg-brand ring-2 ring-brand/20 transition-all duration-300 ease-out"
+      style={{ left: `${leftPct}%`, transform: 'translate(-50%, -50%)' }}
+    />
   )
 }
