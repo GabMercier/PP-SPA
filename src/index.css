@@ -10,6 +10,35 @@ html, body, #root {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
+/* The deck has a fixed design size (1536 × 864 — same logical viewport as
+   ctrl-+ at 125% on a 1920×1080 monitor) and is scale-to-fit on top of that.
+   On bigger screens it scales up; on smaller screens it scales down so
+   nothing ever clips horizontally. JS in SlideDeck sets the actual scale
+   factor on every resize via inline style. The translate(-50%, -50%) keeps
+   the visual centered inside the viewport for off-aspect-ratio screens.
+   Below 900px we drop the scaling entirely and let the page scroll
+   naturally so each slide's max-[900px]: rules can stack and collapse. */
+.deck-scaled {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1536px;
+  height: 864px;
+  transform-origin: center center;
+  /* transform: translate(-50%, -50%) scale(X) — set by JS */
+}
+
+@media (max-width: 900px) {
+  html, body, #root { overflow: auto; }
+  .deck-scaled {
+    position: static;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    transform: none !important;
+  }
+}
+
 /* ---- showcase loaders ---- */
 
 @keyframes breathe {

@@ -7,6 +7,8 @@ import {
   Wrench,
   AlertTriangle,
 } from "lucide-react";
+import LangToggle from "../components/LangToggle";
+import NarrowAccordion from "../components/NarrowAccordion";
 
 const translations = {
   en: {
@@ -129,20 +131,17 @@ const translations = {
   },
 };
 
-const LANGS = ["en", "fr"];
-
 const GAIN_ICONS = [ServerCog, Wrench];
 
-export default function Slide03_StaysChangesGone({ step = 0 }) {
-  const [lang, setLang] = useState("en");
+export default function Slide03_StaysChangesGone({ step = 0, lang = "en", setLang }) {
   const t = translations[lang];
   // step 0 = Stays + Changes alone, centered (instant)
   // step 1 = full layout, with Gone and Trade-offs as 2s skeleton blocks
 
   return (
-    <div className="w-full h-full bg-white flex flex-col font-sans text-neutral-900">
+    <div className="w-full h-full bg-white flex flex-col font-sans text-neutral-900 max-[900px]:h-auto">
       {/* Top strip: eyebrow + lang toggle */}
-      <header className="px-20 pt-12 flex items-center justify-between">
+      <header className="px-20 pt-6 flex items-center justify-between max-[900px]:px-4 max-[900px]:pt-12">
         <div className="flex items-center gap-3">
           {t.eyebrow && (
             <>
@@ -159,7 +158,7 @@ export default function Slide03_StaysChangesGone({ step = 0 }) {
       {/* Body. View Transitions handle the step change: Stays and Changes
           morph from the centered framing into the 3-column grid, and the new
           content (Gone + Improvements + Trade-offs) scrolls up as a unit. */}
-      <main className="flex-1 flex flex-col px-20 pt-8 pb-10 gap-10 min-h-0">
+      <main className="flex-1 flex flex-col px-20 pt-4 pb-6 gap-6 min-h-0 max-[900px]:px-4 max-[900px]:pt-4 max-[900px]:pb-6 max-[900px]:gap-4">
         {step === 0 ? (
           <CenteredStaysChanges t={t} />
         ) : (
@@ -177,7 +176,7 @@ export default function Slide03_StaysChangesGone({ step = 0 }) {
 function CenteredStaysChanges({ t }) {
   return (
     <div className="flex-1 flex items-center justify-center min-h-0">
-      <div className="grid grid-cols-2 gap-12 max-w-[1500px] w-full">
+      <div className="grid grid-cols-2 gap-12 max-w-[1500px] w-full max-[900px]:grid-cols-1 max-[900px]:gap-4">
         <Column
           kind="stays"
           icon={ShieldCheck}
@@ -205,10 +204,10 @@ function CenteredStaysChanges({ t }) {
 function FullLayout({ t }) {
   return (
     <div
-      className="flex-1 flex flex-col gap-10 min-h-0"
+      className="flex-1 flex flex-col gap-10 min-h-0 max-[900px]:gap-4"
       style={{ viewTransitionName: "slide3-content" }}
     >
-      <div className="grid grid-cols-3 gap-8 flex-[3] min-h-0">
+      <div className="grid grid-cols-3 gap-8 flex-[3] min-h-0 max-[900px]:grid-cols-1 max-[900px]:gap-3">
         <Column
           kind="stays"
           icon={ShieldCheck}
@@ -231,25 +230,27 @@ function FullLayout({ t }) {
         </SkeletonBlock>
       </div>
 
-      <div className="grid grid-cols-5 gap-8 flex-[2] min-h-0">
-        <div className="col-span-3 flex flex-col gap-3 min-h-0">
+      <div className="grid grid-cols-5 gap-8 flex-[2] min-h-0 max-[900px]:grid-cols-1 max-[900px]:gap-4">
+        <div className="col-span-3 flex flex-col gap-3 min-h-0 max-[900px]:col-span-1">
           <SectionLabel text={t.gainsHeading} />
-          <div className="grid grid-cols-2 gap-5 flex-1 min-h-0">
+          <div className="grid grid-cols-2 gap-5 flex-1 min-h-0 max-[900px]:grid-cols-1 max-[900px]:gap-3">
             {t.gains.map((g, i) => (
               <GainCard key={i} icon={GAIN_ICONS[i]} {...g} />
             ))}
           </div>
         </div>
-        <div className="col-span-2 min-h-0 flex">
+        <div className="col-span-2 min-h-0 flex max-[900px]:col-span-1">
           <SkeletonBlock duration={2000} className="flex-1 flex">
-            <div className="flex-1 flex flex-col gap-3 min-h-0">
-              <SectionLabel text={t.tradeoffsHeading} muted />
-              <div className="flex flex-col gap-4 flex-1 justify-center">
-                {t.tradeoffs.map((tr, i) => (
-                  <TradeoffItem key={i} {...tr} />
-                ))}
+            <NarrowAccordion summary={t.tradeoffsHeading} className="flex-1 flex">
+              <div className="flex-1 flex flex-col gap-3 min-h-0">
+                <SectionLabel text={t.tradeoffsHeading} muted className="max-[900px]:hidden" />
+                <div className="flex flex-col gap-4 flex-1 justify-center">
+                  {t.tradeoffs.map((tr, i) => (
+                    <TradeoffItem key={i} {...tr} />
+                  ))}
+                </div>
               </div>
-            </div>
+            </NarrowAccordion>
           </SkeletonBlock>
         </div>
       </div>
@@ -344,9 +345,9 @@ function Column({ kind, icon: Icon, heading, items }) {
   );
 }
 
-function SectionLabel({ text, muted = false }) {
+function SectionLabel({ text, muted = false, className = "" }) {
   return (
-    <div className="flex items-center gap-3">
+    <div className={`flex items-center gap-3 ${className}`}>
       <span
         className={`inline-block w-2 h-2 rounded-full ${
           muted ? "bg-neutral-300" : "bg-brand"
@@ -402,24 +403,3 @@ function TradeoffItem({ title, body }) {
   );
 }
 
-function LangToggle({ lang, setLang }) {
-  return (
-    <div className="flex items-center gap-2 text-[15px] tracking-[0.22em] uppercase">
-      {LANGS.map((l, i) => (
-        <span key={l} className="flex items-center gap-2">
-          {i > 0 && <span className="text-neutral-300">·</span>}
-          <button
-            onClick={() => setLang(l)}
-            className={
-              lang === l
-                ? "text-brand font-medium"
-                : "text-neutral-400 hover:text-neutral-700 transition-colors"
-            }
-          >
-            {l}
-          </button>
-        </span>
-      ))}
-    </div>
-  );
-}

@@ -11,13 +11,15 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import LangToggle from "../components/LangToggle";
+import NarrowAccordion from "../components/NarrowAccordion";
 
 const translations = {
   en: {
     eyebrow: "",
     lede: "Same backend. Tabs, forms and feedback all live in one shell that never reloads.",
-    url: "portal.intelcom.com/account",
-    appName: "Intelcom Portal",
+    url: "portal.example.com/account",
+    appName: "Customer Portal",
     pageTitle: "Account settings",
     nav: ["Home", "Cases", "Documents", "Account"],
     activeNav: "Account",
@@ -28,7 +30,7 @@ const translations = {
     ],
     profile: {
       emailLabel: "Email",
-      emailPlaceholder: "you@intelcom.com",
+      emailPlaceholder: "you@example.com",
       validOk: "Valid email",
       validBad: "Not a valid email",
       oooLabel: "Out of office",
@@ -50,6 +52,7 @@ const translations = {
         { time: "yesterday", text: "Signed in from a new device" },
       ],
     },
+    featuresHeading: "What you're seeing",
     features: [
       "Validation as you type",
       "Async without reload",
@@ -70,8 +73,8 @@ const translations = {
   fr: {
     eyebrow: "",
     lede: "Même backend. Onglets, formulaires et retours d'information vivent dans une seule coquille qui ne se recharge jamais.",
-    url: "portail.intelcom.com/compte",
-    appName: "Portail Intelcom",
+    url: "portail.example.com/compte",
+    appName: "Portail client",
     pageTitle: "Paramètres du compte",
     nav: ["Accueil", "Demandes", "Documents", "Compte"],
     activeNav: "Compte",
@@ -82,7 +85,7 @@ const translations = {
     ],
     profile: {
       emailLabel: "Courriel",
-      emailPlaceholder: "vous@intelcom.com",
+      emailPlaceholder: "vous@example.com",
       validOk: "Adresse valide",
       validBad: "Adresse invalide",
       oooLabel: "Absence du bureau",
@@ -104,6 +107,7 @@ const translations = {
         { time: "hier", text: "Connexion depuis un nouvel appareil" },
       ],
     },
+    featuresHeading: "Ce que vous voyez",
     features: [
       "Validation pendant la saisie",
       "Asynchrone sans rechargement",
@@ -123,15 +127,12 @@ const translations = {
   },
 };
 
-const LANGS = ["en", "fr"];
-
-export default function Slide05_LiveExamples() {
-  const [lang, setLang] = useState("en");
+export default function Slide05_LiveExamples({ lang = "en", setLang }) {
   const t = translations[lang];
 
   // App state held at the top so it survives tab switches: that is the point.
   const [activeTab, setActiveTab] = useState("profile");
-  const [email, setEmail] = useState("gabriel@intelcom.com");
+  const [email, setEmail] = useState("you@example.com");
   const [saveStatus, setSaveStatus] = useState("idle");
   const [notifEnabled, setNotifEnabled] = useState(true);
   const [digestCount, setDigestCount] = useState(3);
@@ -152,9 +153,9 @@ export default function Slide05_LiveExamples() {
   const bellCount = notifEnabled ? digestCount : 0;
 
   return (
-    <div className="w-full h-full bg-white flex flex-col font-sans text-neutral-900">
+    <div className="w-full h-full bg-white flex flex-col font-sans text-neutral-900 max-[900px]:h-auto">
       {/* Top strip: eyebrow + lang toggle */}
-      <header className="px-16 pt-12 flex items-center justify-between">
+      <header className="px-16 pt-6 flex items-center justify-between max-[900px]:px-4 max-[900px]:pt-12">
         <div className="flex items-center gap-3">
           {t.eyebrow && (
             <>
@@ -168,14 +169,14 @@ export default function Slide05_LiveExamples() {
         <LangToggle lang={lang} setLang={setLang} />
       </header>
 
-      <main className="flex-1 flex flex-col px-16 pt-6 pb-8 gap-5 min-h-0">
-        <p className="text-[20px] leading-[1.4] font-light text-neutral-700 max-w-[1100px]">
+      <main className="flex-1 flex flex-col px-16 pt-3 pb-6 gap-4 min-h-0 max-[900px]:px-4 max-[900px]:pt-4 max-[900px]:pb-6 max-[900px]:gap-3">
+        <p className="text-[20px] leading-[1.4] font-light text-neutral-700 max-w-[1100px] max-[900px]:text-[15px]">
           {t.lede}
         </p>
 
         {/* Mockup browser frame + side feature column */}
-        <div className="flex-1 flex gap-8 min-h-0">
-          <div className="flex-1 flex flex-col rounded-2xl border border-neutral-300 shadow-[0_8px_24px_rgba(0,0,0,0.06)] overflow-hidden bg-white min-h-0">
+        <div className="flex-1 flex gap-8 min-h-0 max-[900px]:flex-col max-[900px]:gap-4 max-[900px]:min-h-0">
+          <div className="flex-1 flex flex-col rounded-2xl border border-neutral-300 shadow-[0_8px_24px_rgba(0,0,0,0.06)] overflow-hidden bg-white min-h-0 max-[900px]:flex-none max-[900px]:min-h-[640px]">
             {/* Browser chrome */}
             <div className="flex-none flex items-center gap-3 bg-neutral-100 border-b border-neutral-200 px-4 py-2.5">
               <div className="flex gap-1.5">
@@ -258,7 +259,7 @@ export default function Slide05_LiveExamples() {
                 ))}
               </div>
 
-              <div className="flex-1 min-h-0 pt-2 overflow-auto">
+              <div className="flex-1 min-h-0 pt-2 overflow-auto max-[900px]:overflow-visible max-[900px]:flex-none">
                 {activeTab === "profile" && (
                   <ProfilePanel
                     email={email}
@@ -289,21 +290,27 @@ export default function Slide05_LiveExamples() {
             </div>
           </div>
 
-          {/* Side panel: what to look for */}
-          <div className="flex-none w-[260px] flex flex-col gap-3 pt-2">
-            <span className="text-[11px] tracking-[0.22em] uppercase text-neutral-400 mb-1">
-              What you're seeing
-            </span>
-            {t.features.map((f, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-2.5 text-[14px] text-neutral-700 leading-snug"
-              >
-                <span className="flex-none mt-[7px] w-1.5 h-1.5 rounded-full bg-brand" />
-                <span>{f}</span>
-              </div>
-            ))}
-          </div>
+          {/* Side panel: what to look for. Inline on wide; collapses into an
+              accordion below the mockup at narrow viewports. */}
+          <NarrowAccordion
+            summary={t.featuresHeading}
+            className="flex-none w-[260px] max-[900px]:w-full"
+          >
+            <div className="flex flex-col gap-3 pt-2 max-[900px]:pt-0">
+              <span className="text-[11px] tracking-[0.22em] uppercase text-neutral-400 mb-1 max-[900px]:hidden">
+                {t.featuresHeading}
+              </span>
+              {t.features.map((f, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-2.5 text-[14px] text-neutral-700 leading-snug"
+                >
+                  <span className="flex-none mt-[7px] w-1.5 h-1.5 rounded-full bg-brand" />
+                  <span>{f}</span>
+                </div>
+              ))}
+            </div>
+          </NarrowAccordion>
         </div>
       </main>
     </div>
@@ -340,7 +347,7 @@ function ProfilePanel({
   };
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-10 gap-y-5 max-w-[760px]">
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-10 gap-y-5 max-w-[760px] max-[900px]:grid-cols-1 max-[900px]:gap-x-0">
       {/* Left column: email + save */}
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
@@ -658,26 +665,3 @@ function formatRange(start, end, monthShort) {
   return `${formatDay(start, monthShort)} → ${formatDay(end, monthShort)}`;
 }
 
-/* ---------- lang toggle ---------- */
-
-function LangToggle({ lang, setLang }) {
-  return (
-    <div className="flex items-center gap-2 text-[13px] tracking-[0.2em] uppercase">
-      {LANGS.map((l, i) => (
-        <span key={l} className="flex items-center gap-2">
-          {i > 0 && <span className="text-neutral-300">·</span>}
-          <button
-            onClick={() => setLang(l)}
-            className={
-              lang === l
-                ? "text-brand font-medium"
-                : "text-neutral-400 hover:text-neutral-700 transition-colors"
-            }
-          >
-            {l}
-          </button>
-        </span>
-      ))}
-    </div>
-  );
-}

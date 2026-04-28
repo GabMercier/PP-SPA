@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   AlertCircle,
   LayoutGrid,
@@ -9,6 +8,7 @@ import {
   Layers,
   ArrowLeftRight,
 } from "lucide-react";
+import LangToggle from "../components/LangToggle";
 
 const PP_PARENT_ICON = LayoutGrid;
 const PP_MODULE_ICONS = [ClipboardList, Table, KeyRound];
@@ -18,7 +18,7 @@ const SPA_MODULE_ICONS = [Layers, ArrowLeftRight, KeyRound];
 const translations = {
   en: {
     eyebrow: "",
-    headers: { pp: "Power Pages", spa: "Single page app" },
+    headers: { pp: "Power Pages Site", spa: "Single Page App" },
     subheaders: {
       pp: "An office with many purpose-built rooms.",
       spa: "An open-space office, ready for any type of framework.",
@@ -141,7 +141,7 @@ const translations = {
   },
   fr: {
     eyebrow: "",
-    headers: { pp: "Power Pages", spa: "Application single page" },
+    headers: { pp: "Site Power Pages", spa: "Application Single Page" },
     subheaders: {
       pp: "Un bureau dont chaque pièce est aménagée pour un usage précis.",
       spa: "Un open space, prêt pour n'importe quel plan.",
@@ -261,14 +261,12 @@ const translations = {
       },
       {
         label: "État et cycle de vie",
-        pp: "Chaque page repart à zéro. Pour conserver quelque chose entre les navigations, nous le rangeons en dehors de la page. Notre code ne s'exécute qu'après que la plateforme a fini de dessiner.",
+        pp: "Notre code ne s'exécute qu'après que la plateforme affiche la page.",
         spa: "L'application reste chargée. L'état vit en mémoire, et les composants savent quand ils apparaissent, se mettent à jour et disparaissent.",
       },
     ],
   },
 };
-
-const LANGS = ["en", "fr"];
 
 const DIAGRAMS = [
   { pp: RenderPP, spa: RenderSPA },
@@ -276,8 +274,7 @@ const DIAGRAMS = [
   { pp: StatePP, spa: StateSPA },
 ];
 
-export default function Slide01_TwoArchitectures({ step = 0 }) {
-  const [lang, setLang] = useState("en");
+export default function Slide01_TwoArchitectures({ step = 0, lang = "en", setLang }) {
   const t = translations[lang];
   // step 0 = central-concept intro
   // step 1 = Power Pages framing (low-code studio + built-in modules)
@@ -285,9 +282,9 @@ export default function Slide01_TwoArchitectures({ step = 0 }) {
   // steps 3..N+2 = the N concepts revealed in order
 
   return (
-    <div className="w-full h-full bg-white flex flex-col font-sans text-neutral-900">
+    <div className="w-full h-full bg-white flex flex-col font-sans text-neutral-900 max-[900px]:h-auto">
       {/* Top strip: eyebrow + lang toggle */}
-      <header className="px-20 pt-12 flex items-center justify-between">
+      <header className="px-20 pt-6 flex items-center justify-between max-[900px]:px-4 max-[900px]:pt-12">
         <div className="flex items-center gap-3">
           {t.eyebrow && (
             <>
@@ -304,7 +301,7 @@ export default function Slide01_TwoArchitectures({ step = 0 }) {
       {/* Body. The View Transitions API handles step-to-step fades and morphs
           paired elements (titles + subheaders), so we no longer remount per
           step or run a CSS fade — both would fight the snapshot capture. */}
-      <main className="flex-1 flex flex-col px-20 pt-8 pb-10 min-h-0">
+      <main className="flex-1 flex flex-col px-20 pt-4 pb-6 min-h-0 max-[900px]:px-4 max-[900px]:pt-4 max-[900px]:pb-6 max-[900px]:min-h-0">
         {step === 0 && <IntroView t={t} />}
         {step === 1 && (
           <ArchIntroSection
@@ -337,21 +334,21 @@ export default function Slide01_TwoArchitectures({ step = 0 }) {
         {step >= 3 && (
           <>
             {/* Architecture column headers + per-column metaphor subtitle */}
-            <div className="grid grid-cols-[100px_1fr_1fr] gap-x-14 pb-6 border-b-2 border-neutral-900">
-              <div />
+            <div className="grid grid-cols-[100px_1fr_1fr] gap-x-14 pb-6 border-b-2 border-neutral-900 max-[900px]:grid-cols-1 max-[900px]:gap-y-4">
+              <div className="max-[900px]:hidden" />
               <div>
-                <div className="text-[44px] font-medium leading-[1.05] tracking-tight text-neutral-900">
+                <div className="text-[44px] font-medium leading-[1.05] tracking-tight text-neutral-900 max-[900px]:text-[28px]">
                   {t.headers.pp}
                 </div>
-                <div className="mt-3 text-[22px] italic text-neutral-500 leading-snug">
+                <div className="mt-3 text-[22px] italic text-neutral-500 leading-snug max-[900px]:text-[16px]">
                   {t.subheaders.pp}
                 </div>
               </div>
               <div>
-                <div className="text-[44px] font-medium leading-[1.05] tracking-tight text-brand">
+                <div className="text-[44px] font-medium leading-[1.05] tracking-tight text-brand max-[900px]:text-[28px]">
                   {t.headers.spa}
                 </div>
-                <div className="mt-3 text-[22px] italic text-neutral-500 leading-snug">
+                <div className="mt-3 text-[22px] italic text-neutral-500 leading-snug max-[900px]:text-[16px]">
                   {t.subheaders.spa}
                 </div>
               </div>
@@ -398,16 +395,16 @@ function ArchIntroSection({
   transitionPrefix,
 }) {
   return (
-    <div className="flex-1 flex flex-col gap-6 min-h-0 pt-2">
+    <div className="flex-1 flex flex-col gap-4 min-h-0 max-[900px]:gap-3">
       <div>
         <div
-          className={`text-[60px] font-medium leading-[1.02] tracking-tight ${titleClass}`}
+          className={`text-[44px] font-medium leading-[1.05] tracking-tight max-[900px]:text-[34px] ${titleClass}`}
           style={{ viewTransitionName: `${transitionPrefix}-title` }}
         >
           {title}
         </div>
         <div
-          className="mt-3 text-[26px] italic text-neutral-500 leading-snug max-w-[60ch]"
+          className="mt-2 text-[20px] italic text-neutral-500 leading-snug max-w-[60ch] max-[900px]:text-[17px]"
           style={{ viewTransitionName: `${transitionPrefix}-subheader` }}
         >
           {subheader}
@@ -419,13 +416,13 @@ function ArchIntroSection({
           user advances from step 0; the SPA variant uses the default
           crossfade. */}
       <div
-        className="flex-1 flex flex-col gap-5 min-h-0"
+        className="flex-1 flex flex-col gap-3 min-h-0 max-[900px]:min-h-0"
         style={{ viewTransitionName: `${transitionPrefix}-info` }}
       >
-        <div className="text-[20px] text-neutral-500 leading-snug max-w-[70ch]">
+        <div className="text-[16px] text-neutral-500 leading-snug max-w-[70ch] max-[900px]:text-[15px]">
           {tagline}
         </div>
-        <div className="flex-1 grid grid-cols-2 gap-8 min-h-0">
+        <div className="flex-1 grid grid-cols-2 gap-6 min-h-0 max-[900px]:grid-cols-1 max-[900px]:gap-4">
           <Legend
             studio={studio}
             modules={modules}
@@ -441,22 +438,22 @@ function ArchIntroSection({
 
 function Legend({ studio, modules, ParentIcon, moduleIcons }) {
   return (
-    <div className="flex flex-col gap-4 min-h-0">
+    <div className="flex flex-col gap-3 min-h-0">
       {/* Parent card with chips */}
-      <div className="rounded-2xl border border-neutral-200 bg-neutral-50/60 p-5 flex flex-col gap-4">
-        <div className="flex items-center gap-4">
-          <span className="flex-none w-12 h-12 rounded-lg bg-white border border-neutral-200 flex items-center justify-center text-neutral-700">
-            <ParentIcon className="w-6 h-6" strokeWidth={1.5} />
+      <div className="rounded-2xl border border-neutral-200 bg-neutral-50/60 p-4 flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <span className="flex-none w-10 h-10 rounded-lg bg-white border border-neutral-200 flex items-center justify-center text-neutral-700">
+            <ParentIcon className="w-5 h-5" strokeWidth={1.5} />
           </span>
-          <div className="text-[24px] font-medium text-neutral-900 leading-tight">
+          <div className="text-[20px] font-medium text-neutral-900 leading-tight">
             {studio.title}
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {studio.components.map((name) => (
             <span
               key={name}
-              className="px-3 py-1 rounded-full bg-white border border-neutral-200 text-[15px] text-neutral-700"
+              className="px-2.5 py-0.5 rounded-full bg-white border border-neutral-200 text-[13px] text-neutral-700"
             >
               {name}
             </span>
@@ -464,8 +461,10 @@ function Legend({ studio, modules, ParentIcon, moduleIcons }) {
         </div>
       </div>
 
-      {/* Module sub-cards stacked vertically */}
-      <div className="flex flex-col gap-3 flex-1 min-h-0">
+      {/* Module sub-cards stacked vertically. min-h-0 + overflow-hidden on
+          each card guarantees the limits bullets at the bottom can't escape
+          their card border, even if a translation runs long. */}
+      <div className="flex flex-col gap-2 flex-1 min-h-0">
         {modules.map((m, i) => (
           <ModuleCard key={i} module={m} icon={moduleIcons[i]} />
         ))}
@@ -476,15 +475,15 @@ function Legend({ studio, modules, ParentIcon, moduleIcons }) {
 
 function ModuleCard({ module: m, icon: Icon }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4 flex gap-4 flex-1 min-h-0">
-      <span className="flex-none w-11 h-11 rounded-lg bg-neutral-50 border border-neutral-200 flex items-center justify-center text-neutral-700">
-        <Icon className="w-6 h-6" strokeWidth={1.5} />
+    <div className="rounded-xl border border-neutral-200 bg-white p-3 flex gap-3 flex-1 min-h-0 overflow-hidden">
+      <span className="flex-none w-9 h-9 rounded-lg bg-neutral-50 border border-neutral-200 flex items-center justify-center text-neutral-700">
+        <Icon className="w-5 h-5" strokeWidth={1.5} />
       </span>
-      <div className="flex-1 flex flex-col">
-        <div className="text-[18px] font-medium text-neutral-900 leading-tight mb-2">
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="text-[15px] font-medium text-neutral-900 leading-tight mb-1">
           {m.title}
         </div>
-        <ul className="flex flex-col gap-1.5">
+        <ul className="flex flex-col gap-1">
           {m.desc.map((d, j) => (
             <BulletItem key={`d${j}`} text={d} />
           ))}
@@ -499,15 +498,15 @@ function ModuleCard({ module: m, icon: Icon }) {
 
 function BulletItem({ text, limit = false }) {
   return (
-    <li className="flex items-start gap-2.5 text-[15px] leading-snug">
+    <li className="flex items-start gap-2 text-[13px] leading-snug">
       {limit ? (
         <AlertCircle
-          className="flex-none mt-[3px] w-4 h-4 text-amber-600"
+          className="flex-none mt-[2px] w-3.5 h-3.5 text-amber-600"
           strokeWidth={1.75}
           aria-label="Limits us"
         />
       ) : (
-        <span className="flex-none mt-[9px] w-1.5 h-1.5 rounded-full bg-neutral-400" />
+        <span className="flex-none mt-[7px] w-1.5 h-1.5 rounded-full bg-neutral-400" />
       )}
       <span className={limit ? "text-neutral-800" : "text-neutral-600"}>
         {text}
@@ -543,8 +542,12 @@ function WireframePage({ page }) {
 function Region({ label, children }) {
   return (
     <div className="relative border border-dashed border-neutral-300 rounded-lg bg-neutral-50/50 px-3 pt-4 pb-2.5 flex flex-col min-h-0">
-      <span className="absolute -top-2.5 left-3 px-2 py-0.5 rounded-full bg-brand/15 text-brand text-[12px] font-semibold uppercase tracking-wider">
-        {label}
+      {/* Outer white pill hides the dashed border behind the label; inner pill
+          carries the brand tint so the visual stays the same. */}
+      <span className="absolute -top-2.5 left-3 rounded-full bg-white">
+        <span className="block px-2 py-0.5 rounded-full bg-brand/15 text-brand text-[12px] font-semibold uppercase tracking-wider">
+          {label}
+        </span>
       </span>
       <div className="flex-1 min-h-0">{children}</div>
     </div>
@@ -694,14 +697,17 @@ function ConceptRow({ index, concept, Diagram, expanded }) {
       </div>
 
       {/* Body: text always visible; diagrams only on the expanded row. */}
-      <div className="grid grid-cols-[100px_1fr_1fr] gap-x-14 items-start">
-        <div />
+      <div className="grid grid-cols-[100px_1fr_1fr] gap-x-14 items-start max-[900px]:grid-cols-1 max-[900px]:gap-y-3">
+        <div className="max-[900px]:hidden" />
         <div className={`flex flex-col ${expanded ? "gap-5" : ""}`}>
+          <span className="hidden max-[900px]:block text-[11px] tracking-[0.22em] uppercase text-neutral-400 mb-1">
+            Power Pages
+          </span>
           <p
             className={`transition-all duration-300 ${
               expanded
-                ? "text-[28px] leading-[1.45] font-light text-neutral-700"
-                : "text-[16px] leading-[1.45] font-light text-neutral-500"
+                ? "text-[28px] leading-[1.45] font-light text-neutral-700 max-[900px]:text-[16px]"
+                : "text-[16px] leading-[1.45] font-light text-neutral-500 max-[900px]:text-[14px]"
             }`}
           >
             {concept.pp}
@@ -709,11 +715,14 @@ function ConceptRow({ index, concept, Diagram, expanded }) {
           {expanded && <Diagram.pp />}
         </div>
         <div className={`flex flex-col ${expanded ? "gap-5" : ""}`}>
+          <span className="hidden max-[900px]:block text-[11px] tracking-[0.22em] uppercase text-brand/80 mb-1">
+            SPA
+          </span>
           <p
             className={`transition-all duration-300 ${
               expanded
-                ? "text-[28px] leading-[1.45] font-light text-neutral-700"
-                : "text-[16px] leading-[1.45] font-light text-neutral-500"
+                ? "text-[28px] leading-[1.45] font-light text-neutral-700 max-[900px]:text-[16px]"
+                : "text-[16px] leading-[1.45] font-light text-neutral-500 max-[900px]:text-[14px]"
             }`}
           >
             {concept.spa}
@@ -721,28 +730,6 @@ function ConceptRow({ index, concept, Diagram, expanded }) {
           {expanded && <Diagram.spa />}
         </div>
       </div>
-    </div>
-  );
-}
-
-function LangToggle({ lang, setLang }) {
-  return (
-    <div className="flex items-center gap-2 text-[15px] tracking-[0.22em] uppercase">
-      {LANGS.map((l, i) => (
-        <span key={l} className="flex items-center gap-2">
-          {i > 0 && <span className="text-neutral-300">·</span>}
-          <button
-            onClick={() => setLang(l)}
-            className={
-              lang === l
-                ? "text-brand font-medium"
-                : "text-neutral-400 hover:text-neutral-700 transition-colors"
-            }
-          >
-            {l}
-          </button>
-        </span>
-      ))}
     </div>
   );
 }
