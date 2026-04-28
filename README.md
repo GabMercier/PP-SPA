@@ -1,8 +1,6 @@
-# Portal Pitch — SPA Migration Presentation
+# PP-SPA
 
-Local React/Vite scaffold for the **Client Portal: From Power Pages to SPA** presentation.
-
-Slides are designed in Claude Design, then dropped into `src/slides/` as React components.
+Local React/Vite scaffold for building and presenting slide decks.
 
 ---
 
@@ -15,15 +13,13 @@ npm run dev
 
 Then open http://localhost:5173, press **F** for fullscreen, **← / →** to navigate.
 
-## Demo build (offline-safe)
+## build
 
 ```bash
 npm run build
 ```
 
-Then open `dist/index.html` directly in Chrome. **No network required** — bundle works fully offline. This is what to use for the actual Monday demo.
-
-> Tip: drop the `dist` folder somewhere stable (Desktop, OneDrive, USB) so you have a fallback if the dev server has issues.
+Then open `dist/index.html` directly in Chrome. No network required, the bundle works fully offline.
 
 ---
 
@@ -41,55 +37,89 @@ Then open `dist/index.html` directly in Chrome. **No network required** — bund
 
 ## Adding a slide
 
-1. Design the slide in [Claude Design](https://claude.ai/) — one prompt = one slide
-2. Copy the React component code from the artifact
-3. Create a new file: `src/slides/SlideX.jsx`
-4. Paste the component code, ensure `export default function ...`
-5. Open `src/App.jsx` and:
-   - Import the slide at the top
-   - Add it to the `slides` array
+### 1. Create the file
 
-That's it — Vite hot-reloads, you'll see it immediately.
+Create `src/slides/MySlide.jsx`. Each slide is a default-exported React component that fills `100%` of its parent and receives three props from the deck:
 
-### Things to watch when pasting from Claude Design
+| Prop | What it is |
+|------|------------|
+| `step` | Current sub-step index (0-based). Use it to reveal content progressively. |
+| `lang` | Current language (`'en'` or `'fr'`). |
+| `setLang` | Setter so the slide can render the `LangToggle` corner control. |
 
-- **Imports from `@/components/ui/...`** (shadcn) won't work out of the box. Either install shadcn (`npx shadcn@latest init`) or ask Claude to rewrite without it.
-- **Image URLs** referencing external CDNs are fine but require internet. For an offline demo, save images to `public/` and reference them as `/image.png`.
-- **`recharts`, `lucide-react`** are already installed. Other libs: `npm install <name>` and you're good.
-- **Use the `brand` Tailwind color** (`bg-brand`, `text-brand`) for the teal accent — it's mapped to `#00a68f` in `tailwind.config.js`.
+Minimal skeleton:
+
+```jsx
+import LangToggle from '../components/LangToggle'
+
+const COPY = {
+  en: { title: 'Hello' },
+  fr: { title: 'Bonjour' },
+}
+
+export default function MySlide({ step = 0, lang = 'en', setLang }) {
+  const t = COPY[lang] ?? COPY.en
+  return (
+    <section className="w-full h-full bg-white flex flex-col">
+      <header className="px-20 pt-6 flex justify-end">
+        {setLang && <LangToggle lang={lang} setLang={setLang} />}
+      </header>
+      <main className="flex-1 flex items-center justify-center">
+        <h1 className="text-6xl font-medium text-neutral-900">{t.title}</h1>
+      </main>
+    </section>
+  )
+}
+```
+
+### 2. Register it in `App.jsx`
+
+```jsx
+import MySlide from './slides/MySlide'
+
+const slides = [
+  // ...existing slides
+  { component: MySlide, title: 'My Slide', steps: 1 },
+]
+```
+
+`steps` is how many stations the slide has. The deck walks through every `(slide, step)` pair with the arrow keys, so a slide with `steps: 3` will be visited three times before moving on.
+
+### 3. Use `step` for progressive reveals (optional)
+
+```jsx
+{step === 0 && <Intro />}
+{step >= 1 && <Details />}
+{step >= 2 && <Summary />}
+```
+
+Bump `steps` in `App.jsx` to match.
+
+### Conventions and tooling
+
+- The deck is designed at a fixed 1536x864 logical viewport and scaled to fit the screen, so use absolute pixel sizes freely (`text-[26px]`, `px-20`, etc.). Below 900px wide the deck switches to a stacked flow, so add `max-[900px]:` Tailwind variants where layout would otherwise break.
+- Use the `brand` Tailwind color (`bg-brand`, `text-brand`, `border-brand/30`) for the accent. It's mapped in `tailwind.config.js`.
+- `recharts` and `lucide-react` are already installed. For other libraries: `npm install <name>` and you're good.
+- For an offline demo, save images to `public/` and reference them as `/image.png` rather than external CDNs.
+- For smooth morphs between steps, set a `viewTransitionName` style on paired elements. The deck wraps state changes in `document.startViewTransition` automatically.
 
 ---
 
 ## File structure
 
 ```
-portal-pitch/
+PP-SPA/
 ├── index.html
 ├── package.json
 ├── tailwind.config.js       ← brand color tokens defined here
 ├── vite.config.js
 ├── src/
 │   ├── main.jsx             ← entry point
-│   ├── App.jsx              ← slide registry — edit this to add slides
+│   ├── App.jsx              ← slide registry, edit this to add slides
 │   ├── index.css            ← Tailwind directives
 │   ├── components/
 │   │   ├── SlideDeck.jsx    ← navigation, keyboard, counter
 │   │   └── Slide.jsx        ← optional per-slide wrapper
-│   └── slides/
-│       ├── SlideTitle.jsx   ← example, hand-written
-│       ├── Slide0A.jsx      ← placeholder — replace with Claude Design
-│       ├── Slide0B.jsx      ← placeholder
-│       └── Slide0C.jsx      ← placeholder
+│   └── slides/              ← one file per slide
 ```
 
----
-
-## Pre-demo checklist
-
-- [ ] `npm run build` runs cleanly with no errors
-- [ ] Open `dist/index.html` in Chrome — slides render correctly
-- [ ] Test all arrow-key navigation
-- [ ] Test fullscreen toggle (F)
-- [ ] Verify on the actual screen/projector resolution you'll be using
-- [ ] Have the `dist` folder backed up somewhere offline
-# PP-SPA
